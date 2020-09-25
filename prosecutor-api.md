@@ -9,6 +9,14 @@ The service uses standard HTTP response status codes:
 * 400s for client errors (errors where resending the same request would not be successful). In general, API-specific errors will return a "400 - Bad Request" code with a JSON body that provides more specific error information.
 * 500s for server errors (errors where resending the same request might be successful, because the error happened before the request was actually processed by the service).
 
+## Documentation
+
+These docs should be published to https://github.com/measuresforjustice/mfj-public-docs prosecutor-api.md.
+
+## Endpoint
+
+The endpoint to access this API is available at https://prosecutor-api.mfj.io/api/v1/
+
 
 ## Authentication
 
