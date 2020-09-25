@@ -207,53 +207,64 @@ The following fields will be present in the uploaded file:
 
 | Field Name | Data Type | Values |
 |---|---|---|
-| County | string | County name |
-| FileNumber | string | ###-###### |
+| County | string | County name of prosecutor jurisdiction |
+| FileNumber | string | In PBK this is the case number: ###-###### |
 | Status | string | e.g. OPEN, CLOSED |
-| ReferralDate | date | ISO-8601 date |
-| ArrestDate | date | ISO-8601 date |
-| RefAgency | string | |
-| Municipality | string | |
-| AgencyCaseNum | string | |
-| Unit | string | |
-| DefendantState | string | e.g. MO, PA, IL |
-| DefendantRace | string | e..g. W, B, I, A, H, U |
+| ReferralDate | date | ISO-8601 date when case was referred to prosecutor office |
+| ArrestDate | date | ISO-8601 date of arrest|
+| RefAgency | string | Law enforcement agency that referred the case to the prosecutor office |
+| Municipality | string | Municipality where the arrest took place |
+| AgencyCaseNum | string | Law enforcement or prosecutor office case number |
+| Unit | string | Prosecutor office unit dealing witht he case |
+| DefendantState | string | Defendant residence state e.g. MO, PA, IL |
+| DefendantRace | string | e.g. W, B, I, A, H, U |
 | DefendantGender | string | e..g. M, F, U |
 | DefendantSID | string | |
-| PersonID | integer |  |
-| CourtCaseNum | string |  |
-| IncidentDate | date | ISO-8601 date |
-| CountNumber | integer |  |
-| LeadChargeFlag | string | e.g., Y, N |
-| ReferralCharge | string |  |
-| ReferralStatute | string |  |
-| ReferralChargeDescription | string |  |
-| ReferralSeverity | string | e.g. F, M, I, U, L |
-| ReferralClass | string | e.g. A, B, C, D, E, U |
-| ReferralModifier | string | e.g. Attempted, Conspiracy |
-| ReferralNCIC | string | NCIC is numeric but uses leading zeros |
-| ReferralNCICEnhancerDesc | string |  |
-| ChargeCode | string |  |
-| ChargeStatute | string |  |
-| ChargeDescription | string |  |
-| Severity | string | e.g., F, M, I, L |
-| Class | string | e.g., A. B, C, D, U |
-| ChargeModifier | string | e.g., Attempted, Conspiracy |
-| ChargeNCIC | string | NCIC is numeric but uses leading zeros |
-| ChargeNCICEnhancerDesc | string |  |
-| CaseScreeningDecision | string | e.g., Accepted, Declined |
-| CaseScreeningDate_ReviewOfCharges | date | ISO-8601 date |
-| IssuedDate | date | ISO-8601 date |
-| ChargeDispo | string |   |
-| DispoDate | date | ISO-8601 date |
-| SentenceDate | date | ISO-8601 date |
-| CaseVicCount | integer |  |
-| VictimRace | string | e..g. W, B, I, A, H, U |
-| VictimGender | string | e.g. M, F, U |
-| AgeAtOffenseDate | integer |  |
-| Domestic | string | e.g. Yes, No |
-| CaseIssuedToDispDays | integer |  |
-| CaseIssuedToSentDays | integer |  |
+| PersonID | integer | Anonymized defendant ID within the county and across data uploads |
+| CourtCaseNum | string | Court docket number |
+| IncidentDate | date | ISO-8601 date of offense |
+| CountNumber | integer | Number of counts |
+| LeadChargeFlag | string | Flag for lead or most serious charge e.g., Y, N |
+| ReferralCharge | string | Referral charge code |
+| ReferralStatute | string | Referral charge statute |
+| ReferralChargeDescription | string | Referral charge description |
+| ReferralSeverity | string | Referral charge severity e.g. F, M, I, U, L |
+| ReferralClass | string | Referral charge class depending on state e.g. A, B, C, D, E, U |
+| ReferralModifier | string | Referral charge modifiers/enhancers e.g. Attempted, Conspiracy |
+| ReferralNCIC | string | Referral charge NCIC/FBI code. It is numeric with leading zeros |
+| ReferralNCICEnhancerDesc | string | Referral charge NCIC/FBI enhancer description |
+| ChargeCode | string | Filing charge code |
+| ChargeStatute | string | Filing charge statute |
+| ChargeDescription | string | Filing charge description |
+| Severity | string | Filing charge severity e.g., F, M, I, L |
+| Class | string | Filing charge class depending on state e.g., A. B, C, D, U |
+| ChargeModifier | string | Filing charge modifiers/enhancers e.g., Attempted, Conspiracy |
+| ChargeNCIC | string | Filing charge NCIC/FBI code. It is numeric but uses leading zeros |
+| ChargeNCICEnhancerDesc | string | Filing charge NCIC/FBI enhancer description |
+| CaseScreeningDecision | string | Prosecutor case screening decision e.g., Accepted, Declined |
+| CaseScreeningDate_ReviewOfCharges | date | Prosecutor case screening ISO-8601 date |
+| IssuedDate | date | Charge filing ISO-8601 date |
+| ChargeDispo | string | Charge disposition |
+| DispoDate | date | Charge dipsosition ISO-8601 date |
+| SentenceDate | date | Sentence ISO-8601 date |
+| ActConfType | string | Actual confinement type |
+| ActConfDays | integer | Actual confinement days |
+| ActConfMonths | integer | Actual confinement months |
+| ActConfYears | integer | Actual confinement years |
+| ActConfStartDate | date | Actual confinement start ISO-8601 date |
+| ActProbType | string | Actual probation type |
+| ActProbDays | integer | Actual probation days |
+| ActProbMonths | integer | Actual probation months |
+| ActProbYears | integer | Actual probation years |
+| ActProbStartDate | date | Actual probation start ISO-8601 date |
+| ActFine | string | Actual fine |
+| CaseVicCount | integer | Number of victims in case |
+| VictimRace | string | Victim race e.g. W, B, I, A, H, U |
+| VictimGender | string | Victim gender e.g. M, F, U |
+| AgeAtOffenseDate | integer | Age of defendant at time of offense |
+| Domestic | string | Whether case is domestic abuse or not e.g. Yes, No |
+| CaseIssuedToDispDays | integer | Number of days from filing to disposition |
+| CaseIssuedToSentDays | integer | Number of days from filing to sentence |
 
 Data will be accepted in any of three formats: CSV, JSON or XML.
 
