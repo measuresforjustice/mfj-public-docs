@@ -9,13 +9,9 @@ The service uses standard HTTP response status codes:
 * 400s for client errors (errors where resending the same request would not be successful). In general, API-specific errors will return a "400 - Bad Request" code with a JSON body that provides more specific error information.
 * 500s for server errors (errors where resending the same request might be successful, because the error happened before the request was actually processed by the service).
 
-## Documentation
-
-These docs should be published to https://github.com/measuresforjustice/mfj-public-docs prosecutor-api.md.
-
 ## Endpoint
 
-The endpoint to access this API is available at https://prosecutor-api.mfj.io/api/v1/
+The endpoint to access this API is available at https://prosecutor-api.mfj.io/
 
 
 ## Authentication
@@ -34,7 +30,7 @@ Authentication: Basic bWVsOjEyMzQ1
 
 Requests without the header or with invalid credentials will receive a 401 response code from the server.
 
-## File Upload
+## Endpoints
 
 File upload is a three-step process The client:
 
@@ -200,6 +196,55 @@ For any response with a code of zero, the HTTP response code will be 200. For an
 Uploads must be completed within one week of being started.
 Uncompleted uploads will be deleted, and their IDs may be reused.
 
+### Upload program flow
+
+Pseudocode for how to upload a file:
+
+```
+partSize = 10 MB
+partCount = fileSize / partSize
+# adjust partSize/partCount if partCount is greater than limit
+
+loop {
+
+    try {
+
+        # start the upload, get which parts have already been uploaded
+        startResponse = POST /api/v1/upload/start?id=<id>
+        doneParts = startResponse.parts
+
+        # upload any remaining parts
+        for ( partNo in [0..partCount] ) {
+            if ( partNo not in doneParts ) {
+                partStart = partNo * partSize
+                partEnd = partStart + partSize # or end of file for the last part
+
+                POST /api/v1/upload/part?id=<id>&partNo=<partNo>&partSize=<partSize>
+                # request body is the portion of the file from <partStart> to <partEnd>
+            }
+        }
+
+        # complete the upload
+        loop {
+            completeResponse = POST /api/v1/upload/complete
+            if ( completeResponse.code == 0 ) {
+                break
+            } else if ( completeResponse == 2 ) {
+                sleep( 30 seconds )
+            } else {
+                throw nonRecoverableError
+            }
+        }
+
+        break
+
+    } catch ( recoverableError ) {
+        # e.g.: network timeout, 500 from server
+        exponentialBackoff()
+    }
+}
+```
+
 ## Upload File Structure and Format
 
 The following fields will be present in the uploaded file:
@@ -245,7 +290,7 @@ The following fields will be present in the uploaded file:
 | CaseScreeningDate_ReviewOfCharges | date | Prosecutor case screening ISO-8601 date |
 | IssuedDate | date | Charge filing ISO-8601 date |
 | ChargeDispo | string | Charge disposition |
-| DispoDate | date | Charge dipsosition ISO-8601 date |
+| DispoDate | date | Charge disposition ISO-8601 date |
 | SentenceDate | date | Sentence ISO-8601 date |
 | ActConfType | string | Actual confinement type |
 | ActConfDays | integer | Actual confinement days |
@@ -268,46 +313,282 @@ The following fields will be present in the uploaded file:
 
 Data will be accepted in any of three formats: CSV, JSON or XML.
 
+### CSV
+
 CSV files will use the field names above as headers on the first row, and the file will conform to RFC-4180.
+
+#### CSV Example
+
+All values in this example are blank. Format values per field definition table above.
+
+```csv
+County,FileNumber,Status,ReferralDate,ArrestDate,RefAgency,Municipality,AgencyCaseNum,Unit,DefendantState,DefendantRace,DefendantGender,DefendantSID,PersonID,CourtCaseNum,IncidentDate,CountNumber,LeadChargeFlag,ReferralCharge,ReferralStatute,ReferralChargeDescription,ReferralSeverity,ReferralClass,ReferralModifier,ReferralNCIC,ReferralNCICEnhancerDesc,ChargeCode,ChargeStatute,ChargeDescription,Severity,Class,ChargeModifier,ChargeNCIC,ChargeNCICEnhancerDesc,CaseScreeningDecision,CaseScreeningDate_ReviewOfCharges,IssuedDate,ChargeDispo,DispoDate,SentenceDate,ActConfType,ActConfDays,ActConfMonths,ActConfYears,ActConfStartDate,ActProbType,ActProbDays,ActProbMonths,ActProbYears,ActProbStartDate,ActFine,CaseVicCount,VictimRace,VictimGender,AgeAtOffenseDate,Domestic,CaseIssuedToDispDays,CaseIssuedToSentDays
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+```
+
+### JSON
 
 JSON files will be an array of objects, one object per row, using the field names above as keys. The file will conform to RFC-7159.
 
-XML files will be a series of Record elements contained within a root Records element (TODO: possibly better names?). Each Record element will contain a row of data, using the above field names as element names (e.g. <Status>DISPOSED</Status>). The file will conform to the W3C XML 1.0 Specification.
+#### JSON Example
 
-## Configuration
+All values in this example are blank. Format values per field definition table above.
 
-The default location is `~/.config/file-upload-service/config.properties`.
-The location can be overriden with env var `$FILE_UPLOAD_SERVICE_CONFIG`.
+```json
+[
+    {
+      "County": "",
+      "FileNumber": "",
+      "Status": "",
+      "ReferralDate": "",
+      "ArrestDate": "",
+      "RefAgency": "",
+      "Municipality": "",
+      "AgencyCaseNum": "",
+      "Unit": "",
+      "DefendantState": "",
+      "DefendantRace": "",
+      "DefendantGender": "",
+      "DefendantSID": "",
+      "PersonID": "",
+      "CourtCaseNum": "",
+      "IncidentDate": "",
+      "CountNumber": "",
+      "LeadChargeFlag": "",
+      "ReferralCharge": "",
+      "ReferralStatute": "",
+      "ReferralChargeDescription": "",
+      "ReferralSeverity": "",
+      "ReferralClass": "",
+      "ReferralModifier": "",
+      "ReferralNCIC": "",
+      "ReferralNCICEnhancerDesc": "",
+      "ChargeCode": "",
+      "ChargeStatute": "",
+      "ChargeDescription": "",
+      "Severity": "",
+      "Class": "",
+      "ChargeModifier": "",
+      "ChargeNCIC": "",
+      "ChargeNCICEnhancerDesc": "",
+      "CaseScreeningDecision": "",
+      "CaseScreeningDate_ReviewOfCharges": "",
+      "IssuedDate": "",
+      "ChargeDispo": "",
+      "DispoDate": "",
+      "SentenceDate": "",
+      "ActConfType": "",
+      "ActConfDays": "",
+      "ActConfMonths": "",
+      "ActConfYears": "",
+      "ActConfStartDate": "",
+      "ActProbType": "",
+      "ActProbDays": "",
+      "ActProbMonths": "",
+      "ActProbYears": "",
+      "ActProbStartDate": "",
+      "ActFine": "",
+      "CaseVicCount": "",
+      "VictimRace": "",
+      "VictimGender": "",
+      "AgeAtOffenseDate": "",
+      "Domestic": "",
+      "CaseIssuedToDispDays": "",
+      "CaseIssuedToSentDays": ""
+    },
+    {
+      "County": "",
+      "FileNumber": "",
+      "Status": "",
+      "ReferralDate": "",
+      "ArrestDate": "",
+      "RefAgency": "",
+      "Municipality": "",
+      "AgencyCaseNum": "",
+      "Unit": "",
+      "DefendantState": "",
+      "DefendantRace": "",
+      "DefendantGender": "",
+      "DefendantSID": "",
+      "PersonID": "",
+      "CourtCaseNum": "",
+      "IncidentDate": "",
+      "CountNumber": "",
+      "LeadChargeFlag": "",
+      "ReferralCharge": "",
+      "ReferralStatute": "",
+      "ReferralChargeDescription": "",
+      "ReferralSeverity": "",
+      "ReferralClass": "",
+      "ReferralModifier": "",
+      "ReferralNCIC": "",
+      "ReferralNCICEnhancerDesc": "",
+      "ChargeCode": "",
+      "ChargeStatute": "",
+      "ChargeDescription": "",
+      "Severity": "",
+      "Class": "",
+      "ChargeModifier": "",
+      "ChargeNCIC": "",
+      "ChargeNCICEnhancerDesc": "",
+      "CaseScreeningDecision": "",
+      "CaseScreeningDate_ReviewOfCharges": "",
+      "IssuedDate": "",
+      "ChargeDispo": "",
+      "DispoDate": "",
+      "SentenceDate": "",
+      "ActConfType": "",
+      "ActConfDays": "",
+      "ActConfMonths": "",
+      "ActConfYears": "",
+      "ActConfStartDate": "",
+      "ActProbType": "",
+      "ActProbDays": "",
+      "ActProbMonths": "",
+      "ActProbYears": "",
+      "ActProbStartDate": "",
+      "ActFine": "",
+      "CaseVicCount": "",
+      "VictimRace": "",
+      "VictimGender": "",
+      "AgeAtOffenseDate": "",
+      "Domestic": "",
+      "CaseIssuedToDispDays": "",
+      "CaseIssuedToSentDays": ""
+    }
+]
+```
 
-The file is a java properties file, containing the following properties:
+### XML
 
-  * `interface` - bind interface. Default: `127.0.0.1`
-    * In docker, you probably want to set this to `0.0.0.0`.
-  * `port` - bind port. Default: `4567`
-  * `ldap.uri` - LDAP URI. Always uses StartTLS. Default: `ldap://ldap.mfj.io`
-  * `authz.group` - LDAP group that user must have to use the service.
-  * `aws.region` - AWS region
-  * `aws.profile` - AWS profile. Default: default
-  * `s3.bucket` - Name of S3 bucket that data is stored in.
-  * `s3.prefix` - S3 key prefix for all stored data. Default: none
-  * `lock-table` - Name of DynamoDB lock table.
+XML files will be a series of Record elements contained within a root Records element. Each Record element will contain a row of data, using the above field names as element names (e.g. <Status>DISPOSED</Status>). The file will conform to the W3C XML 1.0 Specification.
 
-## Health Endpoint
+#### XML Example
 
-GET `http://{host}:{port}/api/v1/.health` returns 200 and the text "healthy".
+All values in this example are blank. Format values per field definition table above.
 
-## Docker
-
-Mount the configuration file and set env var `$FILE_UPLOAD_SERVICE_CONFIG`.
-
-Java options can be set by setting env vars `$JAVA_OPTS.`
-
-## Shutdown
-
-On SIGTERM, it will spend up to 30 seconds responding to already started requests.
-
-## Scaling
-
-All calls are stateless. DynamoDB is used for locking, data is stored in S3.
-Multiple copies of the web service may be run simultaneously.
-
+```xml
+<Records>
+  <Record>
+    <County></County>
+    <FileNumber></FileNumber>
+    <Status></Status>
+    <ReferralDate></ReferralDate>
+    <ArrestDate></ArrestDate>
+    <RefAgency></RefAgency>
+    <Municipality></Municipality>
+    <AgencyCaseNum></AgencyCaseNum>
+    <Unit></Unit>
+    <DefendantState></DefendantState>
+    <DefendantRace></DefendantRace>
+    <DefendantGender></DefendantGender>
+    <DefendantSID></DefendantSID>
+    <PersonID></PersonID>
+    <CourtCaseNum></CourtCaseNum>
+    <IncidentDate></IncidentDate>
+    <CountNumber></CountNumber>
+    <LeadChargeFlag></LeadChargeFlag>
+    <ReferralCharge></ReferralCharge>
+    <ReferralStatute></ReferralStatute>
+    <ReferralChargeDescription></ReferralChargeDescription>
+    <ReferralSeverity></ReferralSeverity>
+    <ReferralClass></ReferralClass>
+    <ReferralModifier></ReferralModifier>
+    <ReferralNCIC></ReferralNCIC>
+    <ReferralNCICEnhancerDesc></ReferralNCICEnhancerDesc>
+    <ChargeCode></ChargeCode>
+    <ChargeStatute></ChargeStatute>
+    <ChargeDescription></ChargeDescription>
+    <Severity></Severity>
+    <Class></Class>
+    <ChargeModifier></ChargeModifier>
+    <ChargeNCIC></ChargeNCIC>
+    <ChargeNCICEnhancerDesc></ChargeNCICEnhancerDesc>
+    <CaseScreeningDecision></CaseScreeningDecision>
+    <CaseScreeningDate_ReviewOfCharges></CaseScreeningDate_ReviewOfCharges>
+    <IssuedDate></IssuedDate>
+    <ChargeDispo></ChargeDispo>
+    <DispoDate></DispoDate>
+    <SentenceDate></SentenceDate>
+    <ActConfType></ActConfType>
+    <ActConfDays></ActConfDays>
+    <ActConfMonths></ActConfMonths>
+    <ActConfYears></ActConfYears>
+    <ActConfStartDate></ActConfStartDate>
+    <ActProbType></ActProbType>
+    <ActProbDays></ActProbDays>
+    <ActProbMonths></ActProbMonths>
+    <ActProbYears></ActProbYears>
+    <ActProbStartDate></ActProbStartDate>
+    <ActFine></ActFine>
+    <CaseVicCount></CaseVicCount>
+    <VictimRace></VictimRace>
+    <VictimGender></VictimGender>
+    <AgeAtOffenseDate></AgeAtOffenseDate>
+    <Domestic></Domestic>
+    <CaseIssuedToDispDays></CaseIssuedToDispDays>
+    <CaseIssuedToSentDays></CaseIssuedToSentDays>
+  </Record>
+  <Record>
+    <County></County>
+    <FileNumber></FileNumber>
+    <Status></Status>
+    <ReferralDate></ReferralDate>
+    <ArrestDate></ArrestDate>
+    <RefAgency></RefAgency>
+    <Municipality></Municipality>
+    <AgencyCaseNum></AgencyCaseNum>
+    <Unit></Unit>
+    <DefendantState></DefendantState>
+    <DefendantRace></DefendantRace>
+    <DefendantGender></DefendantGender>
+    <DefendantSID></DefendantSID>
+    <PersonID></PersonID>
+    <CourtCaseNum></CourtCaseNum>
+    <IncidentDate></IncidentDate>
+    <CountNumber></CountNumber>
+    <LeadChargeFlag></LeadChargeFlag>
+    <ReferralCharge></ReferralCharge>
+    <ReferralStatute></ReferralStatute>
+    <ReferralChargeDescription></ReferralChargeDescription>
+    <ReferralSeverity></ReferralSeverity>
+    <ReferralClass></ReferralClass>
+    <ReferralModifier></ReferralModifier>
+    <ReferralNCIC></ReferralNCIC>
+    <ReferralNCICEnhancerDesc></ReferralNCICEnhancerDesc>
+    <ChargeCode></ChargeCode>
+    <ChargeStatute></ChargeStatute>
+    <ChargeDescription></ChargeDescription>
+    <Severity></Severity>
+    <Class></Class>
+    <ChargeModifier></ChargeModifier>
+    <ChargeNCIC></ChargeNCIC>
+    <ChargeNCICEnhancerDesc></ChargeNCICEnhancerDesc>
+    <CaseScreeningDecision></CaseScreeningDecision>
+    <CaseScreeningDate_ReviewOfCharges></CaseScreeningDate_ReviewOfCharges>
+    <IssuedDate></IssuedDate>
+    <ChargeDispo></ChargeDispo>
+    <DispoDate></DispoDate>
+    <SentenceDate></SentenceDate>
+    <ActConfType></ActConfType>
+    <ActConfDays></ActConfDays>
+    <ActConfMonths></ActConfMonths>
+    <ActConfYears></ActConfYears>
+    <ActConfStartDate></ActConfStartDate>
+    <ActProbType></ActProbType>
+    <ActProbDays></ActProbDays>
+    <ActProbMonths></ActProbMonths>
+    <ActProbYears></ActProbYears>
+    <ActProbStartDate></ActProbStartDate>
+    <ActFine></ActFine>
+    <CaseVicCount></CaseVicCount>
+    <VictimRace></VictimRace>
+    <VictimGender></VictimGender>
+    <AgeAtOffenseDate></AgeAtOffenseDate>
+    <Domestic></Domestic>
+    <CaseIssuedToDispDays></CaseIssuedToDispDays>
+    <CaseIssuedToSentDays></CaseIssuedToSentDays>
+  </Record>
+</Records>
+```
