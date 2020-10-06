@@ -19,13 +19,13 @@ The endpoint to access this API is available at https://prosecutor-api.mfj.io/
 The API is stateless/sessionless. All requests to the system will contain a basic auth element in the request header:
 
 ```
-Authentication: Basic {base 64 encoded username:password (separated by colon)}
+Authorization: Basic {base 64 encoded username:password (separated by colon)}
 ```
 
 So if the username were mel and the password were 12345, the header element would be:
 
 ```
-Authentication: Basic bWVsOjEyMzQ1
+Authorization: Basic bWVsOjEyMzQ1
 ```
 
 Requests without the header or with invalid credentials will receive a 401 response code from the server.
