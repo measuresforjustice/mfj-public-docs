@@ -82,7 +82,7 @@ For any response with a code of zero, the HTTP response code will be 200. For an
 POST /api/v1/upload/part?id={upload ID}&partNo={part number}&partSize={size in bytes of part}
 ```
 
-TThis request sends a file upload part. The content-type of the request is application/octet-stream. The payload contains a portion of the file of the specified size.
+This request sends a file upload part. The content-type of the request is application/octet-stream. The payload contains a portion of the file of the specified size.
 
 The query params are:
 
