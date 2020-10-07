@@ -114,7 +114,7 @@ Values for `code` are:
 
 Limits on part uploads:
 
-* minimum part size is 2Mb for all but the final part
+* minimum part size is 5MB for all but the final part
 * maximum number of parts is 10,000
 
 Parts can be sent in any order. Parts can be sent more than once (the most recent part is kept). An error response to a part request means only that the server does not count that part as having been received.
