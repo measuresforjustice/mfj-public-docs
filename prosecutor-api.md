@@ -1,4 +1,4 @@
-## DRAFT - Prosecutor Data Delivery REST API
+## Prosecutor Data Delivery REST API
 
 The data delivery API is a REST service for the receipt of ongoing prosecutor data by MFJ. All JSON is UTF-8. The service will be HTTPS-only.
 
