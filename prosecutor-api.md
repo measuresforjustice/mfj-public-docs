@@ -310,20 +310,6 @@ loop {
 
 Data will be accepted in any of three formats: CSV, JSON or XML.
 
-### CSV
-
-CSV files will use the field names above as headers on the first row, and the file will conform to RFC-4180.
-
-#### CSV Example
-
-All values in this example are blank. Format values per field definition table above.
-
-```csv
-County,FileNumber,Status,ReferralDate,ArrestDate,RefAgency,Municipality,AgencyCaseNum,Unit,DefendantState,DefendantRace,DefendantGender,DefendantSID,PersonID,CourtCaseNum,IncidentDate,CountNumber,LeadChargeFlag,ReferralCharge,ReferralStatute,ReferralChargeDescription,ReferralSeverity,ReferralClass,ReferralModifier,ReferralNCIC,ReferralNCICEnhancerDesc,ChargeCode,ChargeStatute,ChargeDescription,Severity,Class,ChargeModifier,ChargeNCIC,ChargeNCICEnhancerDesc,CaseScreeningDecision,CaseScreeningDate_ReviewOfCharges,IssuedDate,ChargeDispo,DispoDate,SentenceDate,ActConfType,ActConfDays,ActConfMonths,ActConfYears,ActConfStartDate,ActProbType,ActProbDays,ActProbMonths,ActProbYears,ActProbStartDate,ActFine,CaseVicCount,VictimRace,VictimGender,AgeAtOffenseDate,Domestic,CaseIssuedToDispDays,CaseIssuedToSentDays
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-```
-
 ### JSON
 
 JSON files will be an array of objects, one object per row, using the field names above as keys. The file will conform to RFC-7159.
