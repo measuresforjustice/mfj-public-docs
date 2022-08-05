@@ -245,10 +245,7 @@ loop {
 }
 ```
 
-## Upload File Structure and Format
-
-The following fields will be present in the uploaded file:
-
+## Upload File Structure and Format Example
 
 | Field Name | Data Type | Values |
 |---|---|---|
